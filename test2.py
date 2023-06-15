@@ -8,22 +8,27 @@ image2 = cv2.imread("/Users/kimjunho/Desktop/컴퓨터비전3-1/[CV]A2/IMG_7578.
 def get_transform_from_keypoints(img_src, img_dst):
     
     # Create a SIFT object and detect keypoints and descriptors for each image
-    sift = cv2.xfeatures2d.SIFT_create()
+    sift = cv2.xfeatures2d.SIFT_create() 
     kpts_src, dscrpt_src = sift.detectAndCompute(img_src, None)
     kpts_dst, dscrpt_dst = sift.detectAndCompute(img_dst, None)
     
     # Match the descriptors
     matcher = cv2.FlannBasedMatcher_create()
     matches = matcher.match(dscrpt_src, dscrpt_dst)
+    matches = sorted(matches, key = lambda x:x.distance)
+    matches = matches[0:50]
 
     # Find the homography matrix using the matched keypoints
+
     src_pts = []
     dst_pts = []
     for match in matches:
         src_pts.append(kpts_src[match.queryIdx].pt)
         dst_pts.append(kpts_dst[match.trainIdx].pt)
     src_pts = np.array(src_pts, dtype=np.float32).reshape(-1, 1, 2)
+    print('src_pts.shape = ', src_pts.shape) #50, 1, 2
     dst_pts = np.array(dst_pts, dtype=np.float32).reshape(-1, 1, 2)
+    print('dst_pts.shape = ', dst_pts.shape) #50, 1, 2
     H, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
 
     
@@ -63,13 +68,15 @@ def get_stitched_image(img_src, img_dst, H):
     # return output
     return stitched_image
 
+
 # 3. Detect and match keypoints and compute transform
 H, kpts_src, _, kpts_dst, _, matches = get_transform_from_keypoints(image1, image2)
 
 # 4. Draw the matches on a new image to check validity of matched keypoints
 match_image = cv2.drawMatches(image1, kpts_src, image2, kpts_dst, matches, None)
-cv2.imshow('matches.png', match_image)
+cv2.imwrite('matches!.png', match_image)
 
 # 3. Create stitched image and save
 stitched_image = get_stitched_image(image1, image2, H)
-cv2.imshow('stitched.png', stitched_image)
+cv2.imwrite('stitched!.png', stitched_image)
+    

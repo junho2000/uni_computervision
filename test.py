@@ -41,7 +41,7 @@ def rotate_img(img, ang):
     return img_out
 
 # Load the image
-img = cv2.imread("/Users/kimjunho/Desktop/컴퓨터비전3-1/[CV]A1/img_example.JPG")
+img = cv2.imread("/Users/kimjunho/Desktop/컴퓨터비전3-1/assignment1/img_example.JPG")
 # Set the rotation angle
 ang = np.pi/3
 img_out = rotate_img(img, ang)
